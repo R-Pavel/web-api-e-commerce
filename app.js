@@ -6,55 +6,33 @@ const api_url = process.env.API_URL
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const userDB = 'eshop-user';
-const pass = 'bYji73E8';
+const cors = require('cors')
 
+app.use(cors())
+app.options('*', cors())
 
 
 //middleware
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 
+//Routes
+const categoriesRoutes = require('./routes/categories')
+const productsRoutes = require('./routes/products')
+const usersRoutes = require('./routes/users')
+const ordersRoutes = require('./routes/orders')
 
-const productSchema = mongoose.Schema({
-    name: String,
-    image: String,
-	countInStock: {
-		type: Number,
-		required: true
-	}
-});
 
-const Product = mongoose.model('Product', productSchema)
+app.use(`${api_url}/categories`, categoriesRoutes)
+app.use(`${api_url}/products`, productsRoutes)
+app.use(`${api_url}/users`, usersRoutes)
+app.use(`${api_url}/orders`, ordersRoutes)
 
-app.get(`${api_url}/products`, async (req, res) => {
-	const productList = await Product.find();
-	if(!productList){
-		res.status(500).json({success:false})
-	}
-	res.send(productList);
-})
-
-app.post(`${api_url}/products`,(req, res) => {
-	const product = new Product({
-		name: req.body.name,
-		image: req.body.image,
-		countInStock: req.body.countInStock
-	})
-
-	product.save().then((createdProduct => {
-		res.status(201).json(createdProduct)
-	})).catch((err) => {
-		res.status(500).json({
-			error:err, 
-			success: false
-		})
-	})
-})
-
+//Database
 mongoose.connect(process.env.MONGO_URL, {
 	useNewUrlParser: true,
-	useUnifiedTopology: true
+	useUnifiedTopology: true,
+	dbName: 'eshop-database'
 })
 .then(() => {
 	console.log("Connection with database is ready")
