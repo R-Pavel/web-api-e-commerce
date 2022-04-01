@@ -1,12 +1,10 @@
 const expressJWT = require('express-jwt')
 
 function authJwt() {
-	const SECRET_JWT = process.env.SECRET_JWT
-
 	return expressJWT({
-		SECRET_JWT,
+		secret: process.env.SECRET_JWT,
 		algorithms: ['HS256']
 	})
 }
 
-module.exports = authJwt;
+module.exports = authJwt();
