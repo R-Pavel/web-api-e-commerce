@@ -2,6 +2,7 @@ const {User} = require('../models/user')
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcryptjs')
+const salt = 10
 
 router.get(`/`, async (req, res) => {
 	const userList = await User.find().select('-passwordHash')
@@ -26,7 +27,7 @@ router.post(`/`, async (req, res) => {
 		apartment: req.body.apartment,
 		email: req.body.email,
 		zip: req.body.zip,
-		passwordHash: bcrypt.hashSync(req.body.password, 10),
+		passwordHash: bcrypt.hashSync(req.body.password, salt),
 		street: req.body.street,
 		city: req.body.city,
 		country: req.body.country,
@@ -84,6 +85,20 @@ router.delete('/:id', (req, res) => {
 			error: err
 		})
 	})
+})
+
+router.post('/login', async (req, res) => {
+	const user = await User.findOne({ email: req.body.email })
+	if(!user) {
+		return res.status(400).send('The user not found')
+	}
+	console.log(req.body.password, user.passwordHash)
+	if(user && bcrypt.compareSync(req.body.password, user.passwordHash)){
+		return res.status(200).send('user Authentificated')		
+	} else {
+		return res.status(400).send('Password is wrong!')
+	}
+	return res.status(200).send(user)
 })
 
 module.exports = router 
