@@ -2,7 +2,10 @@ const {User} = require('../models/user')
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const { isRequired } = require('nodemon/lib/utils')
 const salt = 10
+
 
 router.get(`/`, async (req, res) => {
 	const userList = await User.find().select('-passwordHash')
@@ -92,13 +95,18 @@ router.post('/login', async (req, res) => {
 	if(!user) {
 		return res.status(400).send('The user not found')
 	}
-	console.log(req.body.password, user.passwordHash)
 	if(user && bcrypt.compareSync(req.body.password, user.passwordHash)){
-		return res.status(200).send('user Authentificated')		
+		const token = jwt.sign(
+			{
+				userId: user.id
+			},
+			process.env.SECRET_JWT,
+			{expiresIn : '1w'}
+		)
+		res.status(200).send({user: user.email, token: token})		
 	} else {
-		return res.status(400).send('Password is wrong!')
+		res.status(400).send('Password is wrong!')
 	}
-	return res.status(200).send(user)
 })
 
 module.exports = router 
