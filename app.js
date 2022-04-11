@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors')
 const authJwt = require('./helpers/jwt')
+const errorHandler = require('./helpers/error-handler')
 
 app.use(cors())
 app.options('*', cors())
@@ -17,12 +18,14 @@ app.options('*', cors())
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 app.use(authJwt)
+app.use(errorHandler)
 
 //Routes
 const categoriesRoutes = require('./routes/categories')
 const productsRoutes = require('./routes/products')
 const usersRoutes = require('./routes/users')
-const ordersRoutes = require('./routes/orders')
+const ordersRoutes = require('./routes/orders');
+const res = require('express/lib/response');
 
 
 app.use(`${api_url}/categories`, categoriesRoutes)
