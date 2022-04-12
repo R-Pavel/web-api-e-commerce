@@ -18,7 +18,6 @@ app.options('*', cors())
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 app.use(authJwt)
-app.use(errorHandler)
 
 //Routes
 const categoriesRoutes = require('./routes/categories')
@@ -32,6 +31,7 @@ app.use(`${api_url}/categories`, categoriesRoutes)
 app.use(`${api_url}/products`, productsRoutes)
 app.use(`${api_url}/users`, usersRoutes)
 app.use(`${api_url}/orders`, ordersRoutes)
+app.use(errorHandler)
 
 //Database
 mongoose.connect(process.env.MONGO_URL, {
